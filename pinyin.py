@@ -3043,7 +3043,7 @@ def getspeech(txt) :
     try :
         myobj = gTTS(text=txt, lang=lang, slow=False)
         tmpf = "".join(random.choices(string.ascii_letters,k=10))
-        if os.path.isdir("speech") :
+        if not os.path.isdir("speech") :
             os.system("mkdir speech")
         mp3 = "speech/"+tmpf+".mp3"
         myobj.save(mp3)
@@ -3055,6 +3055,8 @@ content = header
 with open(sys.argv[1],"r") as f :
     for ln in f.readlines() :
         ln = ln.rstrip()
+        if not re.search(r"\S+",ln) :
+            continue
         lnpy = "".join([c if c not in cmap else c+"("+cmap[c]+")" for c in ln])
         content += lnfmt.format(ln)
         content += pyfmt.format(lnpy)
