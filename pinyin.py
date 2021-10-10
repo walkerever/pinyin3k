@@ -1,4 +1,6 @@
 import sys
+from gtts import gTTS
+
 
 cmap = {
 "噢" : "ào",
@@ -3009,6 +3011,12 @@ header="""<html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<script type="text/javascript">
+document.getElementById('audiolink').addEventListener('click', function(e){
+    e.preventDefault();
+    document.getElementById('audiotag').play();
+});
+</script>
 </head>
 <body>
 """
@@ -3020,6 +3028,28 @@ footer="""
 
 lnfmt="<span style=\"color: green\">{}</span></br>\n"
 pyfmt="<span style=\"color: grey\">{}</span></br>\n"
+mp3fmt="<span style=\"color: grey\"><a href=\"{}\" id=\"audiolink\">listen</a></span></br>\n"
+
+from gtts import gTTS
+import string
+import random
+import os
+import re
+
+def getspeech(txt) :
+    lang='zh-CN'
+    if not txt :
+        return None
+    try :
+        myobj = gTTS(text=txt, lang=lang, slow=False)
+        tmpf = "".join(random.choices(string.ascii_letters,k=10))
+        if os.path.isdir("speech") :
+            os.system("mkdir speech")
+        mp3 = "speech/"+tmpf+".mp3"
+        myobj.save(mp3)
+        return mp3
+    except :
+        return None
 
 content = header
 with open(sys.argv[1],"r") as f :
@@ -3028,6 +3058,9 @@ with open(sys.argv[1],"r") as f :
         lnpy = "".join([c if c not in cmap else c+"("+cmap[c]+")" for c in ln])
         content += lnfmt.format(ln)
         content += pyfmt.format(lnpy)
+        mp3 = getspeech(ln)
+        if mp3 :
+            content += mp3fmt.format(mp3)
         content += "</br>\n"
 
 content += footer
